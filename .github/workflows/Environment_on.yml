@@ -21,7 +21,6 @@ jobs:
       - name: Start Lambda Function
         run: |
           aws lambda put-function-concurrency --function-name function1 --reserved-concurrent-executions 5
-          aws lambda put-function-concurrency --function-name function2 --reserved-concurrent-executions 5
           
       - name: Start ECS Task
         run: |
