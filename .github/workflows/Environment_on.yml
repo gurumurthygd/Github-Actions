@@ -20,14 +20,21 @@ jobs:
 
       - name: Start Lambda Function
         run: |
-          aws lambda put-function-concurrency --function-name function1 --reserved-concurrent-executions 5
+          aws lambda put-function-concurrency --function-name function1 --reserved-concurrent-executions 0
           
       - name: Start ECS Task
         run: |
-          aws ecs update-service --cluster Mycluster --service Myservice --desired-count 1
+          aws ecs update-service --cluster Mycluster --service Myservice --desired-count 2
 
       - name: Start EC2 Instance
         run: |
           aws ec2 start-instances --instance-ids i-09a914e0c844e384e
           aws ec2 start-instances --instance-ids i-0e8a814bc49b82b16
-          
+
+      - name: Notify Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{
+            "text": "Deployment Status:\n EC2 Instance started: '${{ steps.start_ec2.outputs.result }}' \n Reserved Concurrency updated for '${{ steps.increase_concurrency.outputs.result }}' \n ECS Service '${{ steps.start_ecs.outputs.result }}' started. \n Environment on."
+          }' $SLACK_WEBHOOK_URL
