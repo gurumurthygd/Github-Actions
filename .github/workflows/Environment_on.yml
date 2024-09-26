@@ -24,7 +24,7 @@ jobs:
           
       - name: Start ECS Task
         run: |
-          aws ecs update-service --cluster Mycluster --service Myservice --desired-count 2
+          aws ecs update-service --cluster Mycluster --service Service --desired-count 2
 
       - name: Start EC2 Instance
         run: |
