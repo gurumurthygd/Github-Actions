@@ -2,11 +2,6 @@ name: AWS Management Workflow
 
 on:
   workflow_dispatch:  # Allows manual triggering of the workflow
-    inputs:
-      input_key:
-        description: 'Input from Slack'
-        required: true
-        default: 'Default value'
 
 jobs:
   manage-aws-resources:
@@ -24,22 +19,32 @@ jobs:
           aws-region: us-east-1  # Change to your preferred region
 
       - name: Start Lambda Function
+        id: start_lambda
         run: |
           aws lambda put-function-concurrency --function-name function1 --reserved-concurrent-executions 0
-          
+          echo "Lambda function concurrency set."
+
       - name: Start ECS Task
+        id: start_ecs
         run: |
           aws ecs update-service --cluster Mycluster --service Service --desired-count 2
+          echo "ECS service updated."
 
-      - name: Start EC2 Instance
+      - name: Start EC2 Instances
+        id: start_ec2
         run: |
-          aws ec2 start-instances --instance-ids i-09a914e0c844e384e
-          aws ec2 start-instances --instance-ids i-0e8a814bc49b82b16
+          aws ec2 start-instances --instance-ids i-09a914e0c844e384e i-0e8a814bc49b82b16
+          echo "EC2 instances started."
 
       - name: Notify Slack
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
+          STATUS_TEXT="Deployment Status:\n"
+          STATUS_TEXT+="Lambda function concurrency updated.\n"
+          STATUS_TEXT+="ECS Service started.\n"
+          STATUS_TEXT+="EC2 Instances started."
+
           curl -X POST -H 'Content-type: application/json' --data '{
-            "text": "Deployment Status:\n EC2 Instance started: '${{ steps.start_ec2.outputs.result }}' \n Reserved Concurrency updated for '${{ steps.increase_concurrency.outputs.result }}' \n ECS Service '${{ steps.start_ecs.outputs.result }}' started. \n Environment on."
+            "text": "'"$STATUS_TEXT"'"
           }' $SLACK_WEBHOOK_URL
