@@ -2,6 +2,11 @@ name: AWS Management Workflow
 
 on:
   workflow_dispatch:  # Allows manual triggering of the workflow
+    inputs:
+      input_key:
+        description: 'Input from Slack'
+        required: true
+        default: 'Default value'
 
 jobs:
   manage-aws-resources:
