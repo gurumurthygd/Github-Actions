@@ -1,16 +1,15 @@
-name: Triggered from Lambda
+name: Triggered Workflow
 
 on:
-  workflow_dispatch:
   repository_dispatch:
-  # You can add additional triggers here if needed
+    types: [lambda_trigger]  # Custom event type
 
 jobs:
-  build:
+  run:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run a script
-        run: echo "Workflow triggered successfully!"
+      - name: Print message
+        run: echo "Triggered by AWS Lambda!"
