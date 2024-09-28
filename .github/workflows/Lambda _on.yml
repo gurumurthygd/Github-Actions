@@ -2,6 +2,7 @@ name: Triggered from Lambda
 
 on:
   workflow_dispatch:
+  repository_dispatch:
   # You can add additional triggers here if needed
 
 jobs:
