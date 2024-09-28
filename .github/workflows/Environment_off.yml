@@ -3,7 +3,9 @@
 name: AWS Management Workflow
 
 on:
-  workflow_dispatch:  # Allows manual triggering of the workflow
+  workflow_dispatch: # Allows manual triggering of the workflow
+  repository_dispatch:
+    types: [lambda_trigger]  # Custom event type
 
 jobs:
   manage-aws-resources:
