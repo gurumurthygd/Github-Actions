@@ -23,3 +23,14 @@ jobs:
         run: |
           aws lambda put-function-concurrency --function-name function1 --reserved-concurrent-executions 0
           echo "Lambda function concurrency set."
+          
+      - name: Notify Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          STATUS_TEXT="Deployment Status:\n"
+          STATUS_TEXT+="Lambda function concurrency updated.\n"
+
+          curl -X POST -H 'Content-type: application/json' --data '{
+            "text": "'"$STATUS_TEXT"'"
+          }' $SLACK_WEBHOOK_URL
