@@ -1,0 +1,53 @@
+const https = require('https');
+
+exports.handler = async (event) => {
+    try {
+        // Get the GitHub token from environment variables
+        const token = process.env.GITHUB_TOKEN; // Use your environment variable name here
+
+        const options = {
+            hostname: 'api.github.com',
+            path: '/repos/gurumurthygd/Github-Actions/dispatches', // Replace with your repo
+            method: 'POST',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'User-Agent': 'AWS Lambda'
+            }
+        };
+
+        const payload = JSON.stringify({
+            event_type: 'lambda_trigger',
+            client_payload: {
+                message: 'Triggered from Lambda!',  // Custom message
+                workflow: 'Environment_off.yml'  // Note: Use this only for context
+            }
+        });
+
+        return new Promise((resolve, reject) => {
+            const req = https.request(options, (res) => {
+                let data = '';
+
+                res.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                res.on('end', () => {
+                    console.log('Response:', data);
+                    resolve('Workflow triggered successfully!');
+                });
+            });
+
+            req.on('error', (e) => {
+                console.error('Error:', e);
+                reject('Failed to trigger workflow.');
+            });
+
+            req.write(payload);
+            req.end();
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        throw new Error('Failed to get GitHub token or trigger workflow.');
+    }
+};
